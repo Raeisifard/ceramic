@@ -1,0 +1,105 @@
+{
+  "verticles": [
+    {
+      "name": "HttpServerSecure",
+      "description": "Http server with auth mongo",
+      "main": "com.vx6.worker.HttpServerSecure",
+      "deploy": false,
+      "options": {
+        "config": {
+          "http-port": 8090,
+          "ws-port": 8090,
+          "db": {
+            "name": "mongoDB",
+            "connection_string": "mongodb://localhost:27017",
+            "db_name": "user"
+          }
+        },
+        "instances": 1,
+        "worker": false
+      }
+    },
+    {
+      "name": "HttpServer",
+      "description": "Http server for serving static pages.",
+      "main": "com.vx6.worker.HttpServer",
+      "deploy": true,
+      "options": {
+        "config": {
+          "http-port": 8090,
+          "ws-port": 8090,
+          "db": {
+            "name": "mongoDB",
+            "connection_string": "mongodb://localhost:27017",
+            "db_name": "user"
+          }
+        },
+        "instances": 1,
+        "worker": false
+      }
+    },
+    {
+      "name": "VXMGateway",
+      "description": "A media settled between MX and VX system and route message to appropriate verticle in charge of related flow",
+      "main": "com.vx6.worker.VXMGateway",
+      "deploy": true,
+      "options": {
+        "config": {
+        },
+        "instances": 1,
+        "worker": true
+      }
+    },
+    {
+      "name": "WebsphereMq",
+      "description": "A Verticle for testing and validation of Ibm Mq input parameters",
+      "main": "com.vx6.worker.test.WebsphereMq",
+      "deploy": false,
+      "options": {
+        "config": {
+        },
+        "instances": 1,
+        "worker": true
+      }
+    },
+    {
+      "name": "SqlServer",
+      "description": "A Verticle for testing and validation of SQL Server input parameters",
+      "main": "com.vx6.worker.test.SqlServer",
+      "deploy": false,
+      "options": {
+        "config": {
+        },
+        "instances": 1,
+        "worker": true
+      }
+    },
+    {
+      "name": "Mongo Client",
+      "description": "Mongo Client Verticle",
+      "main": "com.vx6.worker.MongoClientVerticle",
+      "deploy": false,
+      "options": {
+        "config": {
+          "mongo_uri": "mongodb://localhost:27017",
+          "mongo_db" : "test"
+        },
+        "instances": 1,
+        "worker": false
+      }
+    },
+    {
+      "name": "Register Graph",
+      "description": "Deployed Graphs Registration",
+      "main": "com.vx6.worker.Registry",
+      "deploy": false,
+      "options": {
+        "config": {
+          "auto_deploy": true
+        },
+        "instances": 1,
+        "worker": false
+      }
+    }
+  ]
+}

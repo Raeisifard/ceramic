@@ -1,0 +1,18 @@
+
+exports.vertxStartAsync = function(startFuture) {
+
+  //startFuture.fail();
+  console.log("hello"); // Print on System.out
+  console.warn("warning, something wrong is happening"); // Print on System.err
+  console.error("something terrible happened"); // Print on System.err
+  startFuture.complete();
+
+};
+
+exports.vertxStopAsync = function(stopFuture) {
+
+  //stopFuture.fail();
+
+  stopFuture.complete();
+
+};

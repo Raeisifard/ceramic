@@ -1,0 +1,26 @@
+.DS_Store
+.gradle
+.idea
+.classpath
+.project
+.settings
+.yardoc
+.yardopts
+build
+target
+out
+*.iml
+*.ipr
+*.iws
+.vertx
+test-output
+src/scratchpad
+test-results
+test-tmp
+*.class
+*.swp
+# Project exclude paths
+/vx6/src/main/java/com/vx6/tool/
+/vx6/src/main/java/com/vx6/utils/
+/vx6/src/main/java/com/vx6/verticle/
+/vx6/src/main/java/com/vx6/widget/

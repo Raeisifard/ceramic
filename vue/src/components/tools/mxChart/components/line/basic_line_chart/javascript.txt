@@ -1,0 +1,32 @@
+if (msg.body.signal){
+    ctx.chartData = {
+          labels: [],
+          datasets: [
+            {
+              //label: 'test',
+              backgroundColor: '#8ce368',
+              data: [],
+              fill: false,
+              lineTension: 0.1,
+              borderColor: "rgb(75,192,192)"
+            },
+            {
+              //label: 'sample',
+              backgroundColor: 'rgba(236,84,84,0.78)',
+              data: [],
+              fill: false,
+              lineTension: 0.1,
+              borderColor: "rgba(237,112,250,0.76)"
+            }
+          ]
+        };
+    return true;
+}
+if (JSON.parse(msg.body).redraw){
+    return true;
+}
+let body = JSON.parse(msg.body);
+ctx.chartData.labels.push(Math.floor(Math.random() * ( body.x)));
+ctx.chartData.datasets[0].data.push(Math.floor(Math.random() * ( body.y)));
+ctx.chartData.datasets[1].data.push(Math.floor(Math.random() * ( body.y)));
+return true;

@@ -1,0 +1,275 @@
+{
+  "DEFAULT_BLOCKED_THREAD_CHECK_INTERVAL": 2000000,
+  "default": {
+    "http-port": 8888,
+    "server": true
+  },
+  "verticles": [
+    {
+      "name": "VX6Verticle",
+      "description": "VX6 server main verticle",
+      "main": "com.vx6.main.Deployer",
+      "deploy": true,
+      "options": {
+        "config": {
+          "http-port": "default",
+          "server": "default",
+          "conf": "config.json",
+          "verticles": [
+            {
+              "name": "HttpServerSecure",
+              "description": "Http server with auth mongo",
+              "main": "com.vx6.worker.HttpServerSecure",
+              "deploy": false,
+              "options": {
+                "config": {
+                  "http-port": 8090,
+                  "ws-port": 8090,
+                  "db": {
+                    "name": "mongoDB",
+                    "connection_string": "mongodb://localhost:27017",
+                    "db_name": "user"
+                  }
+                },
+                "instances": 1,
+                "worker": false
+              }
+            },
+            {
+              "name": "HttpServer",
+              "description": "Http server for serving static pages.",
+              "main": "com.vx6.worker.HttpServer",
+              "deploy": true,
+              "options": {
+                "config": {
+                  "http-port": 8090,
+                  "ws-port": 8090,
+                  "db": {
+                    "name": "mongoDB",
+                    "connection_string": "mongodb://localhost:27017",
+                    "db_name": "user"
+                  }
+                },
+                "instances": 1,
+                "worker": false
+              }
+            },
+            {
+              "name": "VXMGateway",
+              "description": "A media settled between MX and VX system and route message to appropriate verticle in charge of related flow",
+              "main": "com.vx6.worker.VXMGateway",
+              "deploy": false,
+              "options": {
+                "config": {
+                },
+                "instances": 1,
+                "worker": true
+              }
+            },
+            {
+              "name": "WebsphereMq",
+              "description": "A Verticle for testing and validation of Ibm Mq input parameters",
+              "main": "com.vx6.worker.test.WebsphereMq",
+              "deploy": false,
+              "options": {
+                "config": {
+                },
+                "instances": 1,
+                "worker": true
+              }
+            },
+            {
+              "name": "SqlServer",
+              "description": "A Verticle for testing and validation of SQL Server input parameters",
+              "main": "com.vx6.worker.test.SqlServer",
+              "deploy": false,
+              "options": {
+                "config": {
+                },
+                "instances": 1,
+                "worker": true
+              }
+            },
+            {
+              "name": "Mongo Client",
+              "description": "Mongo Client Verticle",
+              "main": "com.vx6.worker.MongoClientVerticle",
+              "deploy": false,
+              "options": {
+                "config": {
+                  "mongo_uri": "mongodb://localhost:27017",
+                  "mongo_db" : "test"
+                },
+                "instances": 1,
+                "worker": false
+              }
+            },
+            {
+              "name": "Register Graph",
+              "description": "Deployed Graphs Registration",
+              "main": "com.vx6.worker.Registry",
+              "deploy": false,
+              "options": {
+                "config": {
+                  "auto_deploy": true
+                },
+                "instances": 1,
+                "worker": false
+              }
+            }
+          ]
+        },
+        "instances": 1,
+        "worker": false
+      }
+    },
+    {
+      "name": "HttpVerticle",
+      "description": "Http server with initial main router",
+      "main": "com.ceramic.api.HttpVerticle",
+      "deploy": true,
+      "options": {
+        "config": {
+          "http-port": "default",
+          "server": "default",
+          "location": "/stt/index.html"
+        },
+        "instances": 1,
+        "worker": false
+      }
+    },
+    {
+      "name": "FreeboardApiVerticle",
+      "description": "Freeboard data-source api",
+      "main": "com.ceramic.api.FreeboardApiVerticle",
+      "deploy": true,
+      "options": {
+        "config": {
+          "http-port": "default",
+          "server": "default",
+          "location": "/stt/freeboard/index-dev.html",
+          "retry": 5000,
+          "eb_address": "/freeboard/sse/suny"
+        },
+        "instances": 1,
+        "worker": false
+      }
+    },
+    {
+      "name": "SunyBsiSseVerticle",
+      "description": "Data Pusher for 'Suny' system",
+      "main": "com.ceramic.api.SseSunyVerticle",
+      "deploy": false,
+      "options": {
+        "config": {
+          "http-port": "default",
+          "server": "default",
+          "retry": 5000,
+          "bank_name": "bsi",
+          "eb_address": "suny.bsi.sse",
+          "sql_server": {
+            "ip": "192.168.41.114",
+            "port": "1433",
+            "database": "suny_bxx11",
+            "user": "sa",
+            "pass": "suny$123"
+          }
+        },
+        "instances": 1,
+        "worker": false
+      }
+    },
+    {
+      "name": "SQLServerVerticle",
+      "description": "SQL Server Connection",
+      "main": "com.ceramic.service.SQLServer",
+      "deploy": true,
+      "options": {
+        "config": {
+          "ip": "192.168.166.11",
+          "port": 1433,
+          "dbName": "Suny",
+          "user": "sa",
+          "password": "suny$123",
+          "sendAddress": "bsi.suny.sse.publisher",
+          "receiveAddress": "bsi.suny.sse.sql_server_verticle",
+          "query": "RECEIVE top(1) CAST(Message_Body AS xml) AS ReceivedMessage FROM dbo.MFTranQueue",
+          "queryType": "select",
+          "prepared": true,
+          "params": [],
+          "autoStart": false,
+          "autoNext": true
+        },
+        "instances": 1,
+        "worker": false
+      }
+    },
+    {
+      "name": "FreeboardEventBus",
+      "description": "Connection btw Freeboard & Vertx via Event-Bus",
+      "main": "com.ceramic.api.FreeboardEventBusVerticle",
+      "deploy": false,
+      "options": {
+        "config": {
+          "http-port": "default"
+        },
+        "instances": 1,
+        "worker": false
+      }
+    },
+    {
+      "name": "HealthCheck",
+      "description": "Health check verticle",
+      "main": "com.ceramic.api.HealthCheckVerticle",
+      "deploy": true,
+      "options": {
+        "config": {
+          "http-port": "default"
+        },
+        "instances": 1,
+        "worker": false
+      }
+    },
+    {
+      "name": "EventbusBridge",
+      "description": "Eventbus bridge verticle",
+      "main": "com.ceramic.api.EventBusBridgeVerticle",
+      "deploy": true,
+      "options": {
+        "config": {
+          "http-port": "default",
+          "inboundAddress": "freeboard.eventbus",
+          "outboundAddress": "eventbus.freeboard"
+        },
+        "instances": 1,
+        "worker": false
+      }
+    },
+    {
+      "name": "BarVerticle",
+      "description": "Other sub_router define",
+      "main": "com.ceramic.api.BarVerticle",
+      "deploy": true,
+      "options": {
+        "config": {
+          "http-port": "default"
+        },
+        "instances": 1,
+        "worker": false
+      }
+    },
+    {
+      "name": "FooVerticle",
+      "description": "Other sub_router define",
+      "main": "com.ceramic.api.FooVerticle",
+      "deploy": false,
+      "options": {
+        "config": {
+          "http-port": "default"
+        },
+        "instances": 1,
+        "worker": false
+      }
+    }
+  ]
+}

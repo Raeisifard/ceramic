@@ -1,0 +1,13 @@
+Cursor cursor = collection.find(
+                        // and clause
+                        and(
+                            // firstName == John
+                            eq("firstName", "John"),
+                            // elements of data array is less than 4
+                            elemMatch("data", lt("$", 4)),
+                            // elements of fruits list has one element matching orange
+                            elemMatch("fruits", regex("$", "orange")),
+                            // note field contains string 'quick' using full-text index
+                            text("note", "quick")
+                            )
+                        );

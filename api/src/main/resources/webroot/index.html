@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <style>
+            body {
+                text-align: center;
+                padding: 0;
+            }
+            .map-wrapper {
+                width: 90%;
+                height:90%;
+                position: fixed;
+                left: 5%;
+                top: 5%;
+                margin: 0 auto;
+            }
+            #map {
+                width: 100%;
+                height:100%;
+                position: relative;
+                border: 1px solid lightblue;
+            }
+        </style>
+    </head>
+    <body>
+    <h2>SSE Tester</h2>
+        <div class="map-wrapper">
+            <div id="map"></div>
+          <div id="stmt"></div>
+        </div>
+        <script>
+          let es = new EventSource('/sse/freeboard');
+          /*es.onmessage = function(msg) {
+            console.dir(msg);
+            document.getElementById("map").innerText=JSON.parse(msg.data).time;
+          };*/
+          es.addEventListener("statement", function(msg) {
+            console.dir(msg);
+            let elm = document.getElementById("map").innerText=JSON.parse(msg.data).data +"\n"+JSON.parse(msg.data).id;
+            let stmt = document.getElementById("stmt").innerText=msg.lastEventId;
+          });
+        </script>
+    </body>
+</html>

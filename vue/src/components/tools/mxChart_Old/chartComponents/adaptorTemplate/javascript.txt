@@ -1,0 +1,8 @@
+//Define function with one input argument and
+//one return object which will used as "Adaptor".
+let label = JSON.parse(msg.body).labels;
+let dataset = JSON.parse(msg.body).dataset;
+console.dir(config);
+chartData.labels.push(label);
+chartData.datasets[0].label = dataset.label;
+chartData.datasets[0].data.push(dataset.data);

@@ -1,0 +1,46 @@
+
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+
+/*
+ * @author <a href="http://tfox.org">Tim Fox</a>
+ */
+
+public class SampleVerticle extends AbstractVerticle {
+    private String id, parentID;
+    private EventBus eb;
+    @Override
+    public void start(Future<Void> startFuture) throws Exception {
+        this.eb = vertx.eventBus();
+        this.id = this.context.deploymentID();
+        this.parentID = config().getString("_parentID");
+        System.out.println("In OtherVerticle.-ParentID:  "+ this.parentID);
+        System.out.println("In OtherVerticle.start-DeployID:  "+ this.id);
+        System.out.println("Config is " + config());
+        MessageConsumer<String> consumerInput = this.eb.consumer(this.id+".input", this::processInputMessage);
+        MessageConsumer<String> consumerTrigger = this.eb.consumer(this.id+".trigger", this::processTriggerMessage);
+        startFuture.complete();
+        //startFuture.fail("delam mikhast......!");
+    }
+
+    @Override
+    public void stop() throws Exception {
+
+        // You can optionally override the stop method too, if you have some clean-up to do
+
+        System.out.println("In OtherVerticle.stop");
+
+    }
+
+    private void processInputMessage(Message<String> msg){
+        //TODO process received message and sent back the result via reply.
+        this.eb.send(this.id+".result", msg.body()+" has completed!!!!");
+    }
+     private void processTriggerMessage(Message<String> msg){
+        //TODO process received message and sent back the result via reply.
+        this.eb.send(this.id+".error", msg.body()+" echoed");
+    }
+}

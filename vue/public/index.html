@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="icon" id="favicon" href="<%= BASE_URL %>favicon.ico">
+    <title>Ceramic</title>
+    <style type="text/css" media="screen">
+        BODY {
+            font-family: Arial,sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        H1 {
+            font-size: 18px;
+        }
+
+        H2 {
+            font-size: 16px;
+        }
+    </style>
+    <!-- Sets the basepath for the library if not in same directory -->
+    <script type="text/javascript">
+      mxBasePath = '/src';
+      // Disables synchronous loading of resources
+      mxLoadResources = false;
+    </script>
+
+    <!-- Loads and initializes the library -->
+    <script type="text/javascript" src="/src/js/mxClient.js"></script>
+</head>
+<body>
+<noscript>
+    <strong>We're sorry but vue_ui doesn't work properly without JavaScript enabled. Please enable it to
+        continue.</strong>
+</noscript>
+<div id="app"></div>
+<!-- built files will be auto injected -->
+</body>
+<script>
+
+  const easyDialog = null;
+  mxCell.prototype.version = null;
+  mxCell.prototype.getVersion = function() {
+    return this.version;
+  };
+  mxCell.prototype.setVersion = function(version) {
+    this.version = version;
+  };
+  mxCell.prototype.type = null;
+  mxCell.prototype.getType = function() {
+    return this.type;
+  };
+  mxCell.prototype.setType = function(type) {
+    this.type = type;
+  };
+  mxCell.prototype.data = null;
+  mxCell.prototype.getData = function() {
+    return this.data;
+  };
+  mxCell.prototype.setData = function(data) {
+    this.data = data;
+  };
+</script>
+<!--<script type="text/javascript" src="/src/init.js"></script>-->
+</html>

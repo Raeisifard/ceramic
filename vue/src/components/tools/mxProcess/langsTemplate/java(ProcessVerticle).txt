@@ -1,0 +1,138 @@
+
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Context;
+import io.vertx.core.Future;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
+public class ProcessVerticle extends AbstractVerticle {
+  protected Vertx vertx;
+  protected Context context;
+  protected EventBus eb;
+  protected JsonObject config;
+  protected String type;
+  protected String id;
+  protected int bufferSize;
+  private Queue<Message> q = new LinkedList<>();//Input queue
+  private int lt, ht;//low threshold & high threshold
+  private boolean buffer = false;
+  private boolean heldOn = false, pushBacked = false;
+  public JsonObject config() {
+    return this.context.config();
+  }
+  private List<String> inputAddressList, triggerAddressList;
+  @Override
+  public void init(Vertx vertx, Context context) {
+    this.vertx = vertx;
+    this.context = context;
+    this.eb = vertx.eventBus();
+    this.config = this.config();
+    this.type = this.config.getString("type");
+    this.id = this.config.getString("id");
+    this.subscribeInputs();
+    this.bufferSize = this.config.getInteger("bufferSize") > 0 ? this.config.getInteger("bufferSize") : 0;
+    buffer = (this.bufferSize != 0);
+    final int INPUT_QUEUE_DEPTH = buffer && this.bufferSize % 100 > 0 ? this.bufferSize - this.bufferSize % 100 + 100 : 100;
+    lt = Math.round(INPUT_QUEUE_DEPTH / 3);
+    ht = Math.round(INPUT_QUEUE_DEPTH * 2 / 3);
+    this.inputAddressList = new ArrayList<>(config().getJsonArray("input").getList());
+    this.triggerAddressList = new ArrayList<>(config().getJsonArray("trigger").getList());
+  }
+
+  @Override
+  public void start(Future<Void> startFuture) throws Exception {
+    this.start();
+    startFuture.complete();
+  }
+
+  @Override
+  public void start() throws Exception {
+
+  }
+
+  @Override
+  public void stop(Future<Void> stopFuture) throws Exception {
+    stop();
+    stopFuture.complete();
+  }
+
+  @Override
+  public void stop() throws Exception {
+  }
+
+  public void send(String address, String msg, DeliveryOptions options) throws Exception {
+    String _address = address.toLowerCase();
+    if (config.containsKey(_address)) {
+      eb.publish(type + "." + id + "." + _address, msg, options);
+    } else {
+      throw new Exception("Address does not exist!");
+    }
+  }
+
+  public void send(String address, String msg) throws Exception {
+    this.send(address, msg, new DeliveryOptions());
+  }
+
+  protected void subscribeInputs() {
+    JsonArray ja = config.getJsonArray("input");
+    ja.forEach(o -> {
+      if (this.buffer) {
+        this.eb.consumer((String) o, this::inputBuffer);
+      } else {
+        this.eb.consumer((String) o, this::input);
+      }
+    });
+    ja = config.getJsonArray("trigger");
+    ja.forEach(o -> {
+      this.eb.consumer((String) o, this::trigger);
+    });
+  }
+
+  public void inputBuffer(Message msg) {
+    q.add(msg);//If type is not "PUSHBACK" then it is "PAYLOAD"
+    if (q.size() >= ht) {
+      //msg.reply("stop");//Sender retrieve "stop" in res.result().body()
+      propagateHoldOn();
+      pushBacked = true;
+    } else if (q.size() < lt && pushBacked) {
+      //TODO propagateNext();
+      propagateRelease();
+      pushBacked = false;
+    } else {
+      //msg.reply("next");
+    }
+  }
+
+  private void propagateHoldOn() {
+    for (String address : this.inputAddressList) {
+      DeliveryOptions options = new DeliveryOptions();
+      options.addHeader("type", "PUSHBACK").addHeader("cmd", "PAUSE").addHeader("SOURCE_ID", this.context.deploymentID());
+      eb.send(address, this.config.getString("type")+"."+this.config.getInteger("id"), options);
+    }
+  }
+
+  private void propagateRelease() {
+    for (String address : this.inputAddressList) {
+      DeliveryOptions options = new DeliveryOptions();
+      options.addHeader("type", "PUSHBACK").addHeader("cmd", "RELEASE").addHeader("SOURCE_ID", this.context.deploymentID());
+      eb.send(address, this.config.getString("type")+"."+this.config.getInteger("id"), options);
+    }
+  }
+
+  public void input(Message msg) {
+
+  }
+
+  public void trigger(Message msg) {
+
+  }
+}

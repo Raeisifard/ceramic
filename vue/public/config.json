@@ -1,0 +1,13 @@
+{
+  "vertxbus": {
+    "BusAddress": "http://localhost:80/eventbus",
+    "enableReconnect": true,
+    "reconnect": {
+      "attemts_max": "Infinity",
+      "delay_min": 1000,
+      "delay_max": 5000,
+      "exponent": 2
+    },
+    "randomization_factor":0.5
+  }
+}
